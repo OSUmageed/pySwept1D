@@ -8,7 +8,7 @@ x = [t * .2 for t in range(50)]
 node = 5
 l_nodes = len(x) / node
 # Temperature along the bar in C
-ID = [[(500.0 * math.exp(-x[(m*l_nodes+n)] / 5.0)) for n in range(l_nodes)] for m in range(node)]
+Nodes =[[(500.0 * math.exp(-x[(m*l_nodes+n)] / 5.0)) for n in range(l_nodes)] for m in range(node)]
 
 Tri_ht = l_nodes / 2
 
@@ -19,18 +19,21 @@ dt = 10  # delta T in seconds
 Fo = dt * Alal / (x[1] ** 2)
 
 ending = 5
-
-Full_Nodes = []
+print len(Nodes)
 
 for k in range(ending):
-    Nodes = []
+
     for n in range(node):
+
+        # The first triangles work.  They return the list Nodes which has length number of nodes.  Each element in
+        # Nodes has length of a timestep initially.  So Nodes[0][1] is the first subtimestep in the first Node.  It has
+        # length number of nodes -2.  In this case, 8.
         if k == 0:
-            Nodes += [topTriangle(Fo, ID[n][:])]
+            Nodes[n] = [topTriangle(Fo, Nodes[n])]
+            print len(Nodes[n])
 
         else:
             if k % 2:
-
                 if n == node-1:
                     g = n
                     n = 0
@@ -38,19 +41,14 @@ for k in range(ending):
                     n = node-1
                 else:
                     IDb = ID[1][n][::-1] + ID[0][n+1]
-                    print ID[1][n], ID[0][n+1]
-                    print IDb
+
 
             else:
                 IDb = ID[0][n+1] + ID[1][n]
-
-            Nodes += bottomTriangle(Fo, IDb, l_nodes, k == ending-1)
-
-    Full_Nodes += Nodes
-    # The communication.  So ID[0] is the communication part and ID[1] is the keeping part.
+            #Need to give the bottom triangle the Node's information and the communicated information.
+            Nodes += bottomTriangle(Fo, Nodes[n], IDb, l_nodes, k == ending-1)
+    print len(Nodes)
     ID = [[communication(Nodes[-m], k + 1) for m in range(1,node+1)]]
-    # The keeping
-    ID += [[communication(Nodes[-m], k) for m in range(1,node+1)]]
 
 
 print 'Done'

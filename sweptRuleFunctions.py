@@ -23,10 +23,10 @@ def topTriangle(F, IC):
     return out_a
 
 
-def bottomTriangle(F, IC, l_nodes, ed):
+def bottomTriangle(F, N1, IC, l_nodes, ed):
 
     out_a = IC[0]
-    out_a.extend(IC[-1])
+    out_a[-1:] = IC[-1]
     out_a = [out_a]
 
     while True:
@@ -39,13 +39,9 @@ def bottomTriangle(F, IC, l_nodes, ed):
             if ed:
                 return out_a
 
-            out_a += [topTriangle(F,holder)]
+            out_a += topTriangle(F,holder)
             return out_a
 
-        holder.reverse()
-        holder.extend(IC[len(out_a)])
-        holder.reverse()
-        holder.extend(IC[-len(out_a)+1])
+        holder[:0] = IC[len(out_a)]
+        holder[-1:] = IC[-len(out_a)+1]
         out_a += [holder]
-
-
