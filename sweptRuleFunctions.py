@@ -5,9 +5,9 @@ def communication(vect, stage):
 
     # When it isn't divisible by 2, it's true.  Dammit.  I need to get only the top parts to communicate.
     if stage % 2:
-        comm = [vect[t][-2:] for t in range(len(vect))]
-    else:
         comm = [vect[t][:2] for t in range(len(vect))]
+    else:
+        comm = [vect[t][-2:] for t in range(len(vect))]
 
     return comm
 
@@ -23,25 +23,34 @@ def topTriangle(F, IC):
     return out_a
 
 
-def bottomTriangle(F, N1, IC, l_nodes, ed):
+def bottomTriangle(F, IC, l_no, ed):
+    #The next timestep's values are the passed values.  They go from top to bottom.
+    
+    init_o = IC[0][(-l_no/2)][-2:] + IC[1][0]
+    holder = []
+    
+    for i in range(l_no/2):
+    
+        Jim =  [F * (init_o[n - 1] + init_o[n + 1] - 2 * init_o[n]) + init_o[n] for n in range(1, len(init_o) - 1)]
 
-    out_a = IC[0]
-    out_a[-1:] = IC[-1]
-    out_a = [out_a]
+        if i < l_no/2-1:
+            holder.append(Jim)
 
-    while True:
+            init_o = IC[0][(i-l_no/2)][-2:] + holder[i] + IC[1][i]
 
-        holder = [F * (out_a[-1][n - 1] + out_a[-1][n + 1] - 2 * out_a[-1][n]) +
-                  out_a[-1][n] for n in range(1, len(out_a[-1]) - 1)]
+    if ed:
+        return holder 
+            
+    holder += topTriangle(F,Jim)
+    
+    return holder
 
-        if len(holder) == l_nodes:
+        
+            
 
-            if ed:
-                return out_a
 
-            out_a += topTriangle(F,holder)
-            return out_a
 
-        holder[:0] = IC[len(out_a)]
-        holder[-1:] = IC[-len(out_a)+1]
-        out_a += [holder]
+
+
+
+

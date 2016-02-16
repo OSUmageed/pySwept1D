@@ -6,6 +6,11 @@ import matplotlib.pyplot as plt
 # Initial conditions.  Material = Aluminum
 x = [t * .2 for t in range(50)]
 node = 5
+
+while len(x)%node != 0:
+    node = int(raw_input('The length of x must be a integer multiple of the number of nodes: '))
+    
+
 l_nodes = len(x) / node
 # Temperature along the bar in C
 Nodes =[[(500.0 * math.exp(-x[(m*l_nodes+n)] / 5.0)) for n in range(l_nodes)] for m in range(node)]
@@ -18,8 +23,9 @@ dt = 10  # delta T in seconds
 
 Fo = dt * Alal / (x[1] ** 2)
 
+#Nodes.  First element is node, second is timestep, third is subtimesteps.
+
 ending = 5
-print len(Nodes)
 
 for k in range(ending):
 
@@ -30,25 +36,37 @@ for k in range(ending):
         # length number of nodes -2.  In this case, 8.
         if k == 0:
             Nodes[n] = [topTriangle(Fo, Nodes[n])]
-            print len(Nodes[n])
 
         else:
             if k % 2:
+                
                 if n == node-1:
-                    g = n
-                    n = 0
-                    IDb = ID[1][n][::-1] + ID[0][n+1]
-                    n = node-1
+                    
+                    Nodes[n] += [ID[0]]
+                    
+                   
                 else:
-                    IDb = ID[1][n][::-1] + ID[0][n+1]
+                    Nodes[n] += [ID[n+1]]
 
-
+                    
+                    
             else:
-                IDb = ID[0][n+1] + ID[1][n]
+                
+                if n == 0:
+                    Nodes[n] += [ID[-1]]
+    
+                
+                else:
+                    Nodes[n] += [ID[n-1]]
+            
             #Need to give the bottom triangle the Node's information and the communicated information.
-            Nodes += bottomTriangle(Fo, Nodes[n], IDb, l_nodes, k == ending-1)
-    print len(Nodes)
-    ID = [[communication(Nodes[-m], k + 1) for m in range(1,node+1)]]
+            Nodes[n][k] = bottomTriangle(Fo, Nodes[n][-2:], l_nodes, k == ending-1)
+            print k, n
+            
+            
+
+    ID = [communication(Nodes[-m][k], k + 1) for m in range(1,node+1)]
+    ID = ID[::-1]
 
 
 print 'Done'
