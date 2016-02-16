@@ -10,7 +10,7 @@ node = 5
 while len(x)%node != 0:
     node = int(raw_input('The length of x must be a integer multiple of the number of nodes: '))
     
-
+# Do this.
 l_nodes = len(x) / node
 # Temperature along the bar in C
 Nodes =[[(500.0 * math.exp(-x[(m*l_nodes+n)] / 5.0)) for n in range(l_nodes)] for m in range(node)]

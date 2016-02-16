@@ -30,8 +30,9 @@ def bottomTriangle(F, IC, l_no, ed):
     holder = []
     
     for i in range(l_no/2):
-    
-        Jim =  [F * (init_o[n - 1] + init_o[n + 1] - 2 * init_o[n]) + init_o[n] for n in range(1, len(init_o) - 1)]
+
+    #Still need to handle side to side motion
+        Jim = [F * (init_o[n - 1] + init_o[n + 1] - 2 * init_o[n]) + init_o[n] for n in range(1, len(init_o) - 1)]
 
         if i < l_no/2-1:
             holder.append(Jim)
