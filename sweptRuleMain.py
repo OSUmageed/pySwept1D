@@ -23,7 +23,7 @@ dt = 10  # delta T in seconds
 
 Fo = dt * Alal / (x[1] ** 2)
 
-#Nodes.  First element is node, second is timestep, third is subtimesteps.
+#Nodes.  First element is node, second is timestep, third is subtimesteps.  It could go on for as many timesteps as desired.
 
 ending = 5
 

@@ -69,7 +69,7 @@ def bottomTriangle(F, IC, l_no, timestep, node, ed):
             init_o = IC[1][0] + IC[0][(-l_no/2)][:2] 
             
         for i in range(l_no/2):
-        #Still need to handle side to side motion
+
             holder = [F * (init_o[n - 1] + init_o[n + 1] - 2 * init_o[n]) + init_o[n] for n in range(1, len(init_o) - 1)]
     
             if i < l_no/2-1:
