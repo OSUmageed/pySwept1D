@@ -35,37 +35,28 @@ for k in range(ending):
         # Nodes has length of a timestep initially.  So Nodes[0][1] is the first subtimestep in the first Node.  It has
         # length number of nodes -2.  In this case, 8.
         if k == 0:
-            Nodes[n] = [topTriangle(Fo, Nodes[n])]
+            Nodes[n] = [topTriangle(Fo, Nodes[n],0)]
 
         else:
-            if k % 2:
-                
-                if n == node-1:
-                    
+            if k % 2:               
+                if n == node-1:                    
                     Nodes[n] += [ID[0]]
-                    
-                   
-                else:
+                          
+                else:                   
                     Nodes[n] += [ID[n+1]]
-
-                    
-                    
-            else:
-                
-                if n == 0:
+  
+            else:               
+                if n == 0:                    
                     Nodes[n] += [ID[-1]]
-    
-                
+                    
                 else:
                     Nodes[n] += [ID[n-1]]
             
             #Need to give the bottom triangle the Node's information and the communicated information.
-            Nodes[n][k] = bottomTriangle(Fo, Nodes[n][-2:], l_nodes, k == ending-1)
+            Nodes[n][k] = bottomTriangle(Fo, Nodes[n][-2:], l_nodes, k, n, k == ending-1)
             print k, n
             
-            
-
-    ID = [communication(Nodes[-m][k], k + 1) for m in range(1,node+1)]
+    ID = [communication(Nodes[-m][k], k) for m in range(1,node+1)]
     ID = ID[::-1]
 
 
