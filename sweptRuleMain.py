@@ -1,6 +1,7 @@
-import numpy as np
+
 from sweptRuleFunctions import *
 import math
+import itertools as it
 import matplotlib.pyplot as plt
 
 # Initial conditions.  Material = Aluminum
@@ -24,7 +25,7 @@ dt = 10  # delta T in seconds
 Fo = dt * Alal / (x[1] ** 2)
 
 #Nodes.  First element is node, second is timestep, third is subtimesteps.  It could go on for as many timesteps as desired.
-
+#This needs to be odd.
 ending = 5
 
 for k in range(ending):
@@ -54,10 +55,56 @@ for k in range(ending):
             
             #Need to give the bottom triangle the Node's information and the communicated information.
             Nodes[n][k] = bottomTriangle(Fo, Nodes[n][-2:], l_nodes, k, n, k == ending-1)
-            print k, n
+            
             
     ID = [communication(Nodes[-m][k], k) for m in range(1,node+1)]
     ID = ID[::-1]
+    
+Nrng = [y*2 for n in range(node)]
+tsrng = range(2)*node
+subtrng = range(2)*node
+Nd_ext = range(1,node+1)+range(1,node)[::-1]
 
+tlen = sum([len(Nodes[0][n])for n in range(len(Nodes[0]))])
+tar = [p*dt for p in range(tlen)]
+Full_Nodes = []
+Full_Nodes.extend([[y for z in range(len(Nodes)) for y in Nodes[z][0][0]]])
+c = 1
+cnt = 0
+
+#What a bunch of nonsense.
+
+a2=1
+    
+for a1 in range(0,ending,2):
+
+    for b in range(len(Nodes[0][1])):
+        
+         if b == len(Nodes[0][0])-1:
+            
+            c = 0
+            if a%2:
+                Full_Nodes.append([y for z in range(len(Nodes)) for y in Nodes[z][a2][b]])
+                
+            else:
+                Full_Nodes.append(Nodes[-1][a2][b][-Nd_ext[cnt]:]+[y for z in range(len(Nodes)-1) for y in Nodes[z][a2][b]]+Nodes[-1][a2][b][:Nd_ext[cnt]])            
+            if a1 == 0:
+                break
+            cnt += 1
+              
+                                  
+         else:
+            #I'm acting like I'm flipping the a values over to a new timestep but I'm not.  In this kind of schme
+            # The a and a+1 terms will step forward together instead of leap frogging.
+            Full_Nodes.append(Nodes[-1][a2][cnt][-Nd_ext[cnt]:] + [y for n in range(node-1) for y in Nodes[n][a1][b+c]+Nodes[n][a2][cnt]] + Nodes[-1][a1][b+c] + Nodes[-1][a2][cnt][:Nd_ext[cnt]])
+            print a1, b, len(Full_Nodes[-1])
+            
+            cnt +=1
+            if cnt == len(Nodes[0][1])-1:
+                cnt = 0
+                
+    if a1 == 2:
+        a2 += 2
+            
 
 print 'Done'

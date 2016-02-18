@@ -20,16 +20,16 @@ def topTriangle(F, IC, split):
     if split:
         while len(out_a[-1]) > 2:
     
-            h1 = [F * (init_o[-1][n - 1] - 2 * init_o[-1][n]) + init_o[-1][n] for n in range(1, len(out_a)/2)]
-            h2 = [F * (init_o[-1][n + 1] - 2 * init_o[-1][n]) + init_o[-1][n] for n in range(len(out_a)/2, len(out_a) - 1)]        
-            out_a += [h1+h2]
-    
+            h1 = [2 * F * (out_a[-1][n - 1] -  out_a[-1][n]) + out_a[-1][n] for n in range(1, len(out_a[-1])/2)]
+            h2 = [2 * F * (out_a[-1][n + 1] -  out_a[-1][n]) + out_a[-1][n] for n in range(len(out_a[-1])/2, len(out_a[-1]) - 1)]        
+            out_a.append(h1+h2)
+            
         return out_a
   
     else:
         while len(out_a[-1]) > 2:
     
-            holder = [F * (out_a[-1][n - 1] + out_a[-1][n + 1] - 2 * out_a[-1][n]) + out_a[-1][n] for n in range(1, len(out_a[-1]) - 1)]
+            holder = [F * (out_a[-1][n - 1] + out_a[-1][n + 1]) + (1- 2*F)*out_a[-1][n] for n in range(1, len(out_a[-1]) - 1)]
             out_a += [holder]
     
         return out_a
@@ -39,14 +39,15 @@ def bottomTriangle(F, IC, l_no, timestep, node, ed):
     #The next timestep's values are the passed values.  They go from top to bottom.
     
     #This is where to handle the split triangle.
-    if node>l_no/2-1 and timestep % 2:
+    if node+1==l_no/2 and timestep % 2:
         out_a = []
-        #This array goes
+        
         init_o =  IC[0][(-l_no/2)][-2:] + IC[1][0] 
             
         for i in range(l_no/2):
-            h1 = [F * (init_o[n - 1] - 2 * init_o[n]) + init_o[n] for n in range(1, len(init_o)/2)]
-            h2 = [F * (init_o[n + 1] - 2 * init_o[n]) + init_o[n] for n in range(len(init_o)/2, len(init_o) - 1)]
+            h1 = [2 * F * (init_o[n - 1] - init_o[n]) + init_o[n] for n in range(1, len(init_o)/2)]
+            h2 = [2 * F * (init_o[n + 1] - init_o[n]) + init_o[n] for n in range(len(init_o)/2, len(init_o) - 1)]
+            
             
             if i < l_no/2-1: 
                 out_a.append(h1+h2) 
@@ -56,7 +57,7 @@ def bottomTriangle(F, IC, l_no, timestep, node, ed):
             out_a.append(h1+h2)
             return out_a 
         
-        out_a += topTriangle(F, holder, 1)        
+        out_a += topTriangle(F, h1+h2, 1)        
         return out_a
         
     else:    
@@ -70,7 +71,7 @@ def bottomTriangle(F, IC, l_no, timestep, node, ed):
             
         for i in range(l_no/2):
 
-            holder = [F * (init_o[n - 1] + init_o[n + 1] - 2 * init_o[n]) + init_o[n] for n in range(1, len(init_o) - 1)]
+            holder = [F * (init_o[n - 1] + init_o[n + 1]) + (1 - 2 *F) * init_o[n] for n in range(1, len(init_o) - 1)]
     
             if i < l_no/2-1:
                 out_a.append(holder)            
