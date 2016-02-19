@@ -39,7 +39,7 @@ def bottomTriangle(F, IC, l_no, timestep, node, ed):
     #The next timestep's values are the passed values.  They go from top to bottom.
     
     #This is where to handle the split triangle.
-    if node+1==l_no/2 and timestep % 2:
+    if node+1 == l_no/2 and timestep % 2:
         out_a = []
         
         init_o =  IC[0][(-l_no/2)][-2:] + IC[1][0] 
@@ -51,7 +51,7 @@ def bottomTriangle(F, IC, l_no, timestep, node, ed):
             
             if i < l_no/2-1: 
                 out_a.append(h1+h2) 
-                init_o = IC[0][(i-l_no/2)][-2:] + out_a[i] + IC[1][i]
+                init_o = IC[0][((i+1)-l_no/2)][-2:] + out_a[i] + IC[1][i+1]
                 
         if ed:
             out_a.append(h1+h2)
@@ -77,10 +77,10 @@ def bottomTriangle(F, IC, l_no, timestep, node, ed):
                 out_a.append(holder)            
                 
                 if timestep%2:            
-                    init_o = IC[0][(i-l_no/2)][-2:] + out_a[i] + IC[1][i]
+                    init_o = IC[0][((i+1)-l_no/2)][-2:] + out_a[i] + IC[1][i+1]
                     
                 else:
-                    init_o = IC[1][i]+ out_a[i] + IC[0][(i-l_no/2)][:2]
+                    init_o = IC[1][i+1]+ out_a[i] + IC[0][((i+1)-l_no/2)][:2]
     
         if ed:
             out_a.append(holder)

@@ -9,14 +9,15 @@ x = [t * .2 for t in range(50)]
 node = 5
 
 while len(x)%node != 0:
-    node = int(raw_input('The length of x must be a integer multiple of the number of nodes: '))
+    print 'The length of x is:', len(x) 
+    node = int(raw_input('The length of x must be a integer multiple of the number of nodes, input number of nodes: '))
     
 # Do this.
 l_nodes = len(x) / node
 # Temperature along the bar in C
 Nodes =[[(500.0 * math.exp(-x[(m*l_nodes+n)] / 5.0)) for n in range(l_nodes)] for m in range(node)]
 
-Tri_ht = l_nodes / 2
+
 
 Alal = 8.418e-5  # Thermal diffusivity. in m^2/s
 kAl = 247.0  # Thermal Conductivity in W/mK
@@ -26,7 +27,7 @@ Fo = dt * Alal / (x[1] ** 2)
 
 #Nodes.  First element is node, second is timestep, third is subtimesteps.  It could go on for as many timesteps as desired.
 #This needs to be odd.
-ending = 5
+ending = 500
 
 for k in range(ending):
 
@@ -57,54 +58,71 @@ for k in range(ending):
             Nodes[n][k] = bottomTriangle(Fo, Nodes[n][-2:], l_nodes, k, n, k == ending-1)
             
             
-    ID = [communication(Nodes[-m][k], k) for m in range(1,node+1)]
+    ID = [communication(Nodes[-m][k][-l_nodes/2:], k) for m in range(1,node+1)]
     ID = ID[::-1]
-    
-Nrng = [y*2 for n in range(node)]
-tsrng = range(2)*node
-subtrng = range(2)*node
-Nd_ext = range(1,node+1)+range(1,node)[::-1]
 
-tlen = sum([len(Nodes[0][n])for n in range(len(Nodes[0]))])
+tlen = l_nodes/2*(ending-2)+1
 tar = [p*dt for p in range(tlen)]
 Full_Nodes = []
-Full_Nodes.extend([[y for z in range(len(Nodes)) for y in Nodes[z][0][0]]])
-c = 1
-cnt = 0
-
-#What a bunch of nonsense.
-
-a2=1
+Full_Nodes.append([y for z in range(len(Nodes)) for y in Nodes[z][0][0]])
+leadingts = 1
+sub_leadingts = 0
+trailingts = 0
+sub_trailingts = 1
+#There are not two timesteps at subtimesteps 0:l_nodes/2:end.  The last node isn't split at multiples of lnodes.
+#You just need to handle every edge case in this one loop. Loop every ts.
+for k in range(1,tlen):
     
-for a1 in range(0,ending,2):
-
-    for b in range(len(Nodes[0][1])):
+    if k % (l_nodes) == 0:
+        Full_Nodes.append([y for z in range(len(Nodes)) for y in Nodes[z][leadingts][sub_leadingts]])
+        sub_trailingts = sub_leadingts
+        sub_leadingts = 0
+        leadingts += 1  
+        trailingts += 1
         
-         if b == len(Nodes[0][0])-1:
+        
+    elif k % (l_nodes/2) == 0:
+        if leadingts % 2:
+            sp = len(Nodes[-1][leadingts][sub_leadingts])/2
+        else:
+            sp = len(Nodes[-1][trailingts][sub_trailingts])/2
             
-            c = 0
-            if a%2:
-                Full_Nodes.append([y for z in range(len(Nodes)) for y in Nodes[z][a2][b]])
-                
-            else:
-                Full_Nodes.append(Nodes[-1][a2][b][-Nd_ext[cnt]:]+[y for z in range(len(Nodes)-1) for y in Nodes[z][a2][b]]+Nodes[-1][a2][b][:Nd_ext[cnt]])            
-            if a1 == 0:
-                break
-            cnt += 1
-              
-                                  
-         else:
-            #I'm acting like I'm flipping the a values over to a new timestep but I'm not.  In this kind of schme
-            # The a and a+1 terms will step forward together instead of leap frogging.
-            Full_Nodes.append(Nodes[-1][a2][cnt][-Nd_ext[cnt]:] + [y for n in range(node-1) for y in Nodes[n][a1][b+c]+Nodes[n][a2][cnt]] + Nodes[-1][a1][b+c] + Nodes[-1][a2][cnt][:Nd_ext[cnt]])
-            print a1, b, len(Full_Nodes[-1])
+        Full_Nodes.append(Nodes[-1][leadingts][sub_leadingts][-sp:] + 
+        [y for z in range(len(Nodes)-1) for y in Nodes[z][leadingts][sub_leadingts]] + 
+        Nodes[-1][leadingts][sub_leadingts][:sp])
+        sub_trailingts = sub_leadingts
+        sub_leadingts = 0
+        leadingts += 1
+        trailingts += 1
+        print k
+        
+    else:
+        if leadingts % 2:
+            sp = len(Nodes[-1][leadingts][sub_leadingts])/2
+        else:
+            sp = len(Nodes[-1][trailingts][sub_trailingts])/2
             
-            cnt +=1
-            if cnt == len(Nodes[0][1])-1:
-                cnt = 0
-                
-    if a1 == 2:
-        a2 += 2
+        if leadingts % 2:
+ 
+            Full_Nodes.append(Nodes[-1][leadingts][sub_leadingts][-sp:] + 
+            [y for z in range(len(Nodes)-1) for y in Nodes[z][trailingts][sub_trailingts] + 
+            Nodes[z][leadingts][sub_leadingts]] + Nodes[-1][trailingts][sub_trailingts] + 
+            Nodes[-1][leadingts][sub_leadingts][:sp])
             
+        else:
+            Full_Nodes.append(Nodes[-1][trailingts][sub_trailingts][-sp:] + 
+            [y for z in range(len(Nodes)-1) for y in Nodes[z][leadingts][sub_leadingts] + 
+            Nodes[z][trailingts][sub_trailingts]] + Nodes[-1][leadingts][sub_leadingts] +
+            Nodes[-1][trailingts][sub_trailingts][:sp])
+            
+        sub_leadingts += 1
+
+    sub_trailingts += 1    
+
 
 print 'Done'
+
+for k in range(0,tlen,tlen/5):
+    plt.plot(x,Full_Nodes[k])
+    
+plt.show()
